@@ -43,9 +43,6 @@ def video(link: str, output_path: str):
         else:
             choice = int(choice)
             video = streams[choice-1]
-        #if os.getcwd() != output_file_path:
-        #filename = video.default_filename
-        #output_file_path = os.path.join(output_path, filename)
         video.download(output_path=output_path)
     except Exception as e:
         print(f"Le téléchargement a échoué pour {youtube.title}. Erreur: {str(e)}")
@@ -64,8 +61,6 @@ def playliste(link: str, output_path: str):
             video_streams = video.streams.filter(progressive=True, file_extension='mp4').order_by('resolution')
             if video_streams:
                 video_choice = video_streams[-1]
-                #filename = video_choice.default_filename
-                #output_file_path = os.path.join(output_path, filename)
                 video_choice.download(output_path=output_path)
             else:
                 print('Aucune qualité vidéo disponible pour la vidéo', video.title)
