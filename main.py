@@ -26,7 +26,6 @@ def validate_url(link:str) -> str:
     else:
         raise ValueError("Le lien n'est pas valide.")
 
-import os
 
 def video(link: str, output_path: str):
     youtube = YouTube(link,on_progress_callback=on_progress)
