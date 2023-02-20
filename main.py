@@ -72,7 +72,7 @@ def download_audio_file(yt: YouTube, video_file: str, output_path: str, file_ext
 
 
 def download_video_file(youtube: YouTube, output_path: str):
-    streams = youtube.streams.filter().order_by('resolution')
+    streams = youtube.streams.filter(file_extension=FILE_EXTENSION).order_by('resolution')
     print(RESOLUTIONS_MESSAGE + ":")
     if streams:
         for i, stream in enumerate(streams):
@@ -111,7 +111,7 @@ def download_video(link: str, output_path: str):
 def download_playlist(link: str, output_path: str):
     playlist = Playlist(link)
     print(playlist.title)
-    output_path = os.path.join(output_path, playlist.title)
+    output_path = os.path.join(output_path, norm_file_name(playlist.title))
 
     for youtube in playlist.videos:
         print(START_DOWNLOAD_MESSAGE)
