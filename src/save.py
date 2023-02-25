@@ -12,19 +12,19 @@ class Save:
             "FILE_PREFIX": "join-",
             'MESSAGES': {
                 "OPTION_MSG_START": "Download youtube",
-                "INVALID_LINK_MSG": "Le lien n'est pas valide.",
-                "RESOLUTIONS_MSG": "Qualités disponibles ",
-                "CHOICE_QUALITY_MSG": "Choisissez une qualité (entrez un nombre ou/ laisser vide pour utiliser la "
+                "INVALID_LINK_MSG": "The link is invalid.",
+                "RESOLUTIONS_MSG": "Available qualities ",
+                "CHOICE_QUALITY_MSG": "Choose a quality (enter a number or/leave blank to use the "
                                       "highest_resolution) ",
-                "START_DOWNLOAD_MSG": "-----------Début du téléchargement-----------",
-                "END_MSG": "-----------Fin-----------",
-                "DOWNLOADING_MSG": "Downloading",
+                "START_DOWNLOAD_MSG": "-----------Start of download-----------",
+                "END_MSG": "-----------End-----------",
+                "DOWNLOADING_MSG": "-----------Downloading-----------",
                 "SORRY_ERROR_MSG": "Sorry Error ",
-                "YOUR_CHOICE_MSG": 'Votre choix: '
+                "YOUR_CHOICE_MSG": 'Your choice '
             }
 
         }
-        # self.save_data()
+        self.save_data()
         self.restore_data()
         self.OPTIONS_CHOICE_STR: list = [
 
