@@ -24,7 +24,7 @@ class Save:
             }
 
         }
-        self.save_data()
+        #self.save_data()
         self.restore_data()
         self.OPTIONS_CHOICE_STR: list = [
 
