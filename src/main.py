@@ -1,4 +1,5 @@
 import re
+import sys
 from typing import Iterable
 from pytube import YouTube
 from pytube import Playlist
@@ -6,6 +7,7 @@ from pytube import StreamQuery
 from pytube import Stream
 import os
 import subprocess
+import argparse
 
 from Enumeration import SaveData
 from save import Save
@@ -24,10 +26,10 @@ class YTDown:
     def __init__(self, save: Save):
         self.save = save
         self.output_path: str = ""
-        self.download_resolutions = ["144p","240p","360p","480p","720p", "1080p"]
+        self.download_resolutions = ["144p", "240p", "360p", "480p", "720p", "1080p"]
         self.select_resolution = None
 
-    def _banner(self):
+    def display_banner(self):
         print(WELCOME_STR)
         for i, choice in enumerate(self.save.OPTIONS_CHOICE_STR):
             print(f"{i + 1}): {choice}")
@@ -81,7 +83,8 @@ class YTDown:
         print(f"{self.save.get_message('START_DOWNLOAD_MSG')}:-{youtube.title}")
         video_file = video_choice.download(
             output_path=self.output_path,
-            filename=self.norm_file_name(f"{youtube.title}_{video_choice.resolution}_{video_choice.fps}.{video_choice.mime_type.split('/')[-1]}")
+            filename=self.norm_file_name(
+                f"{youtube.title}_{video_choice.resolution}_{video_choice.fps}.{video_choice.mime_type.split('/')[-1]}")
         )
 
         if not video_choice.is_progressive:
@@ -115,7 +118,7 @@ class YTDown:
             if not self.select_resolution:
                 video_choice = self.print_available_resolution_and_select(youtube, streams)
             else:
-                #self.select_resolution
+                # self.select_resolution
                 video_choice = youtube.streams.filter(
                     subtype=self.save.get_data(SaveData.FILE_EXTENSION), resolution=self.select_resolution
                 ).first()
@@ -179,17 +182,15 @@ class YTDown:
             f"\r {self.save.get_message('DOWNLOADING_MSG')} : {progress:.2f}%( {(bytes_downloaded / 1024 / 1024):.2f}Mb/{(total_size / 1024 / 1024):.2f}Mb )",
             end="")
 
-    def launch(self):
-        self._banner()
-        choice = input(self.save.get_message('YOUR_CHOICE_MSG'))
-        link = input("Lien de la vidéo ou le Lien de la playliste : ")
-        output_path = input("Chemin de téléchargement (laisser vide pour utiliser le répertoire courant) : ").strip()
-        if not output_path:
-            output_path = os.getcwd()
+    def launch(self, link: str, choice: int, output_path: str, selected_resolution: str | None = None):
+
         try:
             link = self.validate_url(link)
-            choice = int(choice)
-            self.select_resolution = self.display_available_resolution()
+            choice = choice
+            if not selected_resolution:
+                self.select_resolution = self.display_available_resolution()
+            else:
+                self.select_resolution = selected_resolution
             self.output_path = output_path
             if choice == 1:
                 self.download_single_video(link)
@@ -208,7 +209,27 @@ class YTDown:
             print(f"{str(e)}")
             return self.download_resolutions[len(self.download_resolutions) - 1]
 
+    def display_choice_msg(self):
+        self.display_banner()
+        return input(self.save.get_message('YOUR_CHOICE_MSG'))
+
 
 if __name__ == '__main__':
     yt_down = YTDown(Save())
-    yt_down.launch()
+    parser = argparse.ArgumentParser(description='Télécharger une vidéo  ou une playliste Youtube')
+    parser.add_argument('-t', '--url_type', type=int, nargs='?', help='1 pour une video et 2 pour une playliste')
+    parser.add_argument('-l', '--link', type=str, nargs='?', help='le lien de la video ou la playliste')
+    parser.add_argument('-o', '--output_dir', type=str, nargs='?', help='le dossier de la video')
+    parser.add_argument('-r', '--video_resolution', type=str, nargs='?', help='La résolution de la vidéo ex: 1080p')
+
+    video_resolution = None
+    args = parser.parse_args()
+    choice = args.url_type if args.url_type else yt_down.display_choice_msg()
+    link = args.link if args.link else input("Lien de la vidéo ou le Lien de la playliste : ")
+    output_path = args.output_dir if args.output_dir else input(
+        "Chemin de téléchargement (laisser vide pour utiliser le répertoire courant) : ").strip()
+    video_resolution = args.video_resolution
+
+    if not output_path:
+        output_path = os.getcwd()
+    yt_down.launch(link, int(choice), output_path, video_resolution)
