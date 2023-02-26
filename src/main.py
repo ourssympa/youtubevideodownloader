@@ -21,9 +21,11 @@ WELCOME_STR: str = """ __   __  _______    ______   _______  _     _  __    _
 
 
 class YTDown:
-    def __init__(self,save:Save):
+    def __init__(self, save: Save):
         self.save = save
         self.output_path: str = ""
+        self.download_resolutions = ["144p","240p","360p","480p","720p", "1080p"]
+        self.select_resolution = None
 
     def _banner(self):
         print(WELCOME_STR)
@@ -79,11 +81,11 @@ class YTDown:
         print(f"{self.save.get_message('START_DOWNLOAD_MSG')}:-{youtube.title}")
         video_file = video_choice.download(
             output_path=self.output_path,
-            filename=self.norm_file_name(f"{youtube.title}_{video_choice.resolution}_{video_choice.fps}")
+            filename=self.norm_file_name(f"{youtube.title}_{video_choice.resolution}_{video_choice.fps}.{video_choice.mime_type.split('/')[-1]}")
         )
 
         if not video_choice.is_progressive:
-            self.download_audio_file(youtube, video_file,  f"{video_choice.mime_type.split('/')[-1]}")
+            self.download_audio_file(youtube, video_file, f"{video_choice.mime_type.split('/')[-1]}")
         print(f"Video saved at {self.output_path}")
 
     def print_stream(self, streams: StreamQuery):
@@ -98,14 +100,32 @@ class YTDown:
         return youtube.streams.filter(file_extension=self.save.get_data(SaveData.FILE_EXTENSION)).order_by(
             'resolution', )
 
+    def print_available_resolution_and_select(self, youtube: YouTube, streams: StreamQuery) -> Stream:
+        self.print_stream(streams)
+        choice = input(self.save.get_message('CHOICE_QUALITY_MSG') + ":")
+        if not choice:
+            return youtube.streams.get_highest_resolution()
+        else:
+            choice = int(choice)
+            return streams[choice - 1]
+
     def choice_and_download(self, youtube: YouTube, streams: StreamQuery, is_playlist: bool = False):
+
         try:
-            choice = input(self.save.get_message('CHOICE_QUALITY_MSG') + ":")
-            if not choice:
-                video_choice = youtube.streams.get_highest_resolution()
+            if not self.select_resolution:
+                video_choice = self.print_available_resolution_and_select(youtube, streams)
             else:
-                choice = int(choice)
-                video_choice = streams[choice - 1]
+                #self.select_resolution
+                video_choice = youtube.streams.filter(
+                    subtype=self.save.get_data(SaveData.FILE_EXTENSION), resolution=self.select_resolution
+                ).first()
+
+                if self.save.get_data(SaveData.DEBUG):
+                    for stream in streams:
+                        print(f"{stream.resolution} --reso_select: {self.select_resolution}--choice: {video_choice}")
+                if not video_choice:
+                    video_choice = self.print_available_resolution_and_select(youtube, streams)
+
             if not is_playlist:
                 youtube.register_on_progress_callback(self.on_progress)
                 self.download(youtube, video_choice)
@@ -117,7 +137,6 @@ class YTDown:
 
     def download_video_file(self, youtube: YouTube):
         streams = self.filter_streams(youtube)
-        self.print_stream(streams)
         self.choice_and_download(youtube, streams, False)
 
     def download_videos_file(self, youtube_list: Iterable[YouTube]):
@@ -125,10 +144,7 @@ class YTDown:
         length = len(youtube_list)
         for i, youtube in enumerate(youtube_list):
             streams = self.filter_streams(youtube)
-
             print(f"{i + 1}/{length})-{youtube.title}")
-
-            self.print_stream(streams)
 
             downloads.append(self.choice_and_download(youtube, streams, True))
 
@@ -165,13 +181,15 @@ class YTDown:
 
     def launch(self):
         self._banner()
-        choice = int(input(self.save.get_message('YOUR_CHOICE_MSG')))
+        choice = input(self.save.get_message('YOUR_CHOICE_MSG'))
         link = input("Lien de la vidéo ou le Lien de la playliste : ")
         output_path = input("Chemin de téléchargement (laisser vide pour utiliser le répertoire courant) : ").strip()
         if not output_path:
             output_path = os.getcwd()
         try:
             link = self.validate_url(link)
+            choice = int(choice)
+            self.select_resolution = self.display_available_resolution()
             self.output_path = output_path
             if choice == 1:
                 self.download_single_video(link)
@@ -179,6 +197,16 @@ class YTDown:
                 self.download_playlist(link)
         except Exception as e:
             print(f"il semble avoir un souci avec votre lien . Erreur: {str(e)}")
+
+    def display_available_resolution(self) -> str:
+        for i, resol in enumerate(self.download_resolutions):
+            print(f"{i + 1}) {resol}")
+        choice = input(f"{self.save.get_message('YOUR_RESOLUTION_CHOICE_MSG')}:")
+        try:
+            return self.download_resolutions[int(choice) - 1]
+        except Exception as e:
+            print(f"{str(e)}")
+            return self.download_resolutions[len(self.download_resolutions) - 1]
 
 
 if __name__ == '__main__':
