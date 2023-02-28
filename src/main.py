@@ -36,11 +36,12 @@ class YTDown:
 
     def validate_url(self, link: str) -> str:
         pattern = re.compile(
-            r'(https?://)?(www\.)?youtube\.com/watch\?v=[\w-]+(&\S*)?|^(https?://)?(www\.)?youtu\.be/[\w-]+$')
+            r'(https?://)?(www\.)?youtube\.com/watch\?v=[\w-]+(&\S*)?|^(https?://)?(www\.)?youtu\.be/[\w-]+$|^https?://(?:www\.)?youtube\.com/playlist\?list=[\w-]+$')
         if pattern.match(link):
             return link
         else:
             raise ValueError(self.save.get_message('INVALID_LINK_MSG'))
+
 
     def norm_file_name(self, name: str) -> str:
         new: str = ""
