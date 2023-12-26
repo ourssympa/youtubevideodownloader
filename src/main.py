@@ -11,6 +11,7 @@ import argparse
 
 from Enumeration import SaveData
 from save import Save
+from gooey import Gooey
 
 WELCOME_STR: str = """ __   __  _______    ______   _______  _     _  __    _ 
     |  | |  ||       |  |      | |       || | _ | ||  |  | |
@@ -214,8 +215,44 @@ class YTDown:
         self.display_banner()
         return input(self.save.get_message('YOUR_CHOICE_MSG'))
 
-
-if __name__ == '__main__':
+@Gooey(menu=[{'name': 'File', 'items': [{
+                'type': 'AboutDialog',
+                'menuTitle': 'About',
+                'name': 'Gooey Layout Demo',
+                'description': 'An example of Gooey\'s layout flexibility',
+                'version': '1.2.1',
+                'copyright': '2018',
+                'website': 'https://github.com/chriskiehl/Gooey',
+                'developer': 'http://chriskiehl.com/',
+                'license': 'MIT'
+            }, {
+                'type': 'MessageDialog',
+                'menuTitle': 'Information',
+                'caption': 'My Message',
+                'message': 'I am demoing an informational dialog!'
+            }, {
+                'type': 'Link',
+                'menuTitle': 'Visit Our Site',
+                'url': 'https://github.com/chriskiehl/Gooey'
+            }]},
+             {'name': 'Tools', 'items': []},
+             {'name': 'Help', 'items': [
+                 {
+                'type': 'AboutDialog',
+                'menuTitle': 'About',
+                'name': 'Gooey Layout Demo',
+                'description': 'An example of Gooey\'s layout flexibility',
+                'version': '1.2.1',
+                'copyright': '2018',
+                'website': 'https://github.com/chriskiehl/Gooey',
+                'developer': 'http://chriskiehl.com/',
+                'license': 'MIT'
+                }
+                ]
+            }
+        ]
+    )
+def main():
     yt_down = YTDown(Save())
     parser = argparse.ArgumentParser(description='Télécharger une vidéo  ou une playliste Youtube')
     parser.add_argument('-t', '--url_type', type=int, nargs='?', help='1 pour une video et 2 pour une playliste')
@@ -234,3 +271,6 @@ if __name__ == '__main__':
     if not output_path:
         output_path = os.getcwd()
     yt_down.launch(link, int(choice), output_path, video_resolution)
+
+if __name__ == '__main__':
+    main()
