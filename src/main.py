@@ -215,43 +215,7 @@ class YTDown:
         self.display_banner()
         return input(self.save.get_message('YOUR_CHOICE_MSG'))
 
-@Gooey(menu=[{'name': 'File', 'items': [{
-                'type': 'AboutDialog',
-                'menuTitle': 'About',
-                'name': 'Gooey Layout Demo',
-                'description': 'An example of Gooey\'s layout flexibility',
-                'version': '1.2.1',
-                'copyright': '2018',
-                'website': 'https://github.com/chriskiehl/Gooey',
-                'developer': 'http://chriskiehl.com/',
-                'license': 'MIT'
-            }, {
-                'type': 'MessageDialog',
-                'menuTitle': 'Information',
-                'caption': 'My Message',
-                'message': 'I am demoing an informational dialog!'
-            }, {
-                'type': 'Link',
-                'menuTitle': 'Visit Our Site',
-                'url': 'https://github.com/chriskiehl/Gooey'
-            }]},
-             {'name': 'Tools', 'items': []},
-             {'name': 'Help', 'items': [
-                 {
-                'type': 'AboutDialog',
-                'menuTitle': 'About',
-                'name': 'Gooey Layout Demo',
-                'description': 'An example of Gooey\'s layout flexibility',
-                'version': '1.2.1',
-                'copyright': '2018',
-                'website': 'https://github.com/chriskiehl/Gooey',
-                'developer': 'http://chriskiehl.com/',
-                'license': 'MIT'
-                }
-                ]
-            }
-        ]
-    )
+
 def main():
     yt_down = YTDown(Save())
     parser = argparse.ArgumentParser(description='Télécharger une vidéo  ou une playliste Youtube')
