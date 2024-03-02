@@ -71,16 +71,17 @@ class YTDown:
             )
             if self.save.get_data(SaveData.DEBUG):
                 print(f" yt{yt} , video-path: {video_file}, audio_path: {audio_file}")
-            if audio_file:
+            self.save_audio_file(video_file,audio_file,file_extension)
+        except Exception as e:
+            print(f"{self.save.get_message('SORRY_ERROR_MSG')}:{str(e)}")
+    def save_audio_file(self,video_file: str, audio_file: str,file_extension: str):
+        if audio_file:
                 name_file = f"{video_file}.{file_extension}"
                 output_file = os.path.join(self.output_path,
                                            f"{self.save.get_data(SaveData.FILE_PREFIX)}{os.path.basename(name_file)}")
                 cmd = f'ffmpeg -y -i "{video_file}" -i "{audio_file}" -c copy "{output_file}"'
                 subprocess.call(cmd, shell=True)
                 self.after_download_audio(video_file, audio_file, output_file)
-        except Exception as e:
-            print(f"{self.save.get_message('SORRY_ERROR_MSG')}:{str(e)}")
-
     def download(self, youtube: YouTube, video_choice: Stream):
         print(f"{self.save.get_message('START_DOWNLOAD_MSG')}:-{youtube.title}")
         video_file = video_choice.download(
